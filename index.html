@@ -7,255 +7,246 @@
 
   <style>
     /* ===========================================================
-       ПАЛИТРА И ОБЩИЕ ПЕРЕМЕННЫЕ (тёмная кинематографичная тема)
+       ПАЛИТРА (тёмный Apple Pro + RGB-акценты)
        =========================================================== */
     :root {
-      --bg:        #0b0b0d;   /* основной фон — почти чёрный */
-      --surface:   #15151a;   /* карточки, рамки */
-      --surface-2: #1d1d23;   /* фон при наведении */
-      --text:      #f2f2f3;   /* основной текст */
-      --muted:     #8b8b93;   /* приглушённый текст */
-      --accent:    #f5a623;   /* янтарный акцент */
-      --line:      rgba(255,255,255,.08);
-      --maxw:      1100px;
-      --radius:    14px;
+      --bg:        #000000;   /* чистый чёрный, как у Apple Pro */
+      --surface:   #1d1d1f;   /* карточки, теги */
+      --text:      #f5f5f7;   /* основной текст (фирменный Apple-светлый) */
+      --muted:     #86868b;   /* приглушённый текст (фирменный Apple-серый) */
+      --blue:      #2997ff;   /* акцентная ссылка Apple */
+      --line:      rgba(255,255,255,.10);
+      /* RGB-градиент: синий → фиолетовый → розовый → оранжевый */
+      --rgb:       linear-gradient(100deg, #2997ff 0%, #a960ee 35%, #ff6ac1 68%, #ff9d5c 100%);
+      --maxw:      1080px;
+      --radius:    24px;
+      --ease:      cubic-bezier(.16, 1, .3, 1);  /* плавная «эппловская» кривая */
     }
 
-    /* Сброс отступов и единая модель размеров */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      /* системный шрифт Apple — на Mac это настоящий SF Pro */
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* Контейнер-ограничитель ширины */
     .container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-
-    /* Якоря не прячутся под прилипающей навигацией */
-    section { scroll-margin-top: 80px; }
-
+    section { scroll-margin-top: 64px; }
     img { display: block; max-width: 100%; }
     a { color: inherit; text-decoration: none; }
 
-    /* Маленький подзаголовок-метка над крупными заголовками */
-    .eyebrow {
-      color: var(--accent);
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      font-size: .78rem;
-      font-weight: 600;
+    /* Текст, залитый RGB-градиентом (фирменный приём Apple) */
+    .gradient-text {
+      background: var(--rgb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
-    /* Кнопки */
+    /* Маленькая метка над заголовками */
+    .eyebrow {
+      display: inline-block;
+      letter-spacing: .16em; text-transform: uppercase;
+      font-size: .8rem; font-weight: 600; margin-bottom: 16px;
+    }
+
+    /* Кнопки и ссылки */
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 999px;
-      font-weight: 600; font-size: .95rem;
-      transition: transform .25s ease, filter .25s ease, background .25s ease, color .25s ease;
+      padding: 14px 28px; border-radius: 980px;
+      font-weight: 500; font-size: 1.05rem;
+      transition: transform .4s var(--ease), background .3s ease, filter .3s ease;
     }
-    .btn-primary { background: var(--accent); color: #0b0b0d; }
-    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
-    .btn-ghost { border: 1px solid var(--accent); color: var(--accent); }
-    .btn-ghost:hover { background: var(--accent); color: #0b0b0d; }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { transform: scale(1.04); filter: brightness(1.08); }
 
-    /* Заголовок секции */
-    .section-head { margin-bottom: 48px; }
+    .link-arrow { color: var(--blue); font-size: 1.05rem; transition: opacity .2s; }
+    .link-arrow .arr { transition: transform .3s var(--ease); display: inline-block; }
+    .link-arrow:hover .arr { transform: translateX(5px); }
+
+    /* Заголовки секций (по центру, как у Apple) */
+    .section-head { text-align: center; max-width: 640px; margin: 0 auto 56px; }
     .section-head h2 {
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      line-height: 1.15; margin-top: 8px;
+      font-size: clamp(2rem, 5.5vw, 3.4rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: -.02em;
     }
-    .section-head p { color: var(--muted); margin-top: 12px; max-width: 560px; }
+    .section-head p { color: var(--muted); margin-top: 16px; font-size: 1.1rem; }
 
-    section.block { padding: clamp(64px, 10vw, 112px) 0; }
+    section.block { padding: clamp(80px, 12vw, 150px) 0; }
 
     /* ===========================================================
-       НАВИГАЦИЯ (прилипает к верху, размытый фон)
+       АНИМАЦИЯ ПОЯВЛЕНИЯ ПРИ СКРОЛЛЕ (управляется JS)
+       =========================================================== */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity .9s var(--ease), transform .9s var(--ease);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+    /* каскад для карточек — появляются по очереди */
+    .grid .card:nth-child(1) { transition-delay: .00s; }
+    .grid .card:nth-child(2) { transition-delay: .07s; }
+    .grid .card:nth-child(3) { transition-delay: .14s; }
+    .grid .card:nth-child(4) { transition-delay: .21s; }
+    .grid .card:nth-child(5) { transition-delay: .28s; }
+    .grid .card:nth-child(6) { transition-delay: .35s; }
+
+    /* ===========================================================
+       НАВИГАЦИЯ (тонкая, со стеклянным размытием)
        =========================================================== */
     .nav {
       position: sticky; top: 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px;
-      background: rgba(11,11,13,.72);
-      backdrop-filter: blur(12px);
+      height: 52px; padding: 0 24px;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--line);
     }
-    .nav .logo { font-weight: 700; letter-spacing: .04em; }
-    .nav .logo b { color: var(--accent); }
+    .nav .logo { font-weight: 600; font-size: 1.05rem; letter-spacing: -.01em; }
     .nav ul { display: flex; gap: 28px; list-style: none; }
-    .nav ul a { color: var(--muted); font-size: .92rem; transition: color .2s; }
+    .nav ul a { color: var(--muted); font-size: .85rem; transition: color .2s; }
     .nav ul a:hover { color: var(--text); }
 
     /* ===========================================================
-       HERO (первый экран)
+       HERO + анимированное RGB-свечение (aurora)
        =========================================================== */
     .hero {
       position: relative; overflow: hidden;
-      min-height: 90vh;
+      min-height: 100vh;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 80px 24px;
-      /* мягкое янтарное свечение сверху */
-      background:
-        radial-gradient(circle at 50% 28%, rgba(245,166,35,.13), transparent 55%),
-        var(--bg);
+      background: var(--bg);
     }
+    .aurora { position: absolute; inset: 0; pointer-events: none; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .5; }
+    .b1 { width: 520px; height: 520px; background: #2997ff; top: -8%;  left: 8%;  animation: float1 19s var(--ease) infinite; }
+    .b2 { width: 460px; height: 460px; background: #bf5af2; top: 2%;   right: 4%; animation: float2 23s var(--ease) infinite; }
+    .b3 { width: 420px; height: 420px; background: #ff6ac1; top: 32%;  left: 36%; animation: float3 21s var(--ease) infinite; }
+    @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1)}     50%{transform:translate(50px,-40px) scale(1.18)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1.1)}   50%{transform:translate(-60px,30px) scale(1)} }
+    @keyframes float3 { 0%,100%{transform:translate(0,0) scale(1)}     50%{transform:translate(30px,40px) scale(1.2)} }
+
+    .hero-content { position: relative; z-index: 1; }
     .hero h1 {
-      font-size: clamp(2.6rem, 7vw, 5rem);
-      line-height: 1.05; margin: 18px 0;
-      font-weight: 800; letter-spacing: -.01em;
+      font-size: clamp(3rem, 9vw, 7rem);
+      font-weight: 700; line-height: 1.03; letter-spacing: -.03em; margin-bottom: 20px;
     }
-    .hero .sub { color: var(--muted); font-size: clamp(1rem, 2.4vw, 1.35rem); }
-    .hero .cta { margin-top: 36px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .hero .sub { color: var(--muted); font-size: clamp(1.1rem, 2.6vw, 1.6rem); font-weight: 400; }
+    .hero .cta { margin-top: 40px; display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; align-items: center; }
 
     /* ===========================================================
-       ШОУРИЛ / НАРЕЗКА
+       ШОУРИЛ
        =========================================================== */
     .reel-frame {
       position: relative; overflow: hidden;
       border-radius: var(--radius);
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 16 / 9; cursor: pointer;
       border: 1px solid var(--line);
-      cursor: pointer;
-      background: #000;
+      background: #0a0a0a;
     }
     .reel-frame img {
       width: 100%; height: 100%; object-fit: cover;
-      opacity: .55; transition: transform .6s ease, opacity .4s ease;
+      opacity: .6; transition: transform .8s var(--ease), opacity .4s ease;
     }
-    .reel-frame:hover img { transform: scale(1.05); opacity: .7; }
+    .reel-frame:hover img { transform: scale(1.05); opacity: .75; }
     .reel-frame .play {
       position: absolute; inset: 0; margin: auto;
-      width: 92px; height: 92px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid var(--accent);
-      background: rgba(11,11,13,.4);
-      transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
+      width: 88px; height: 88px; border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      transition: transform .4s var(--ease), background .3s ease;
     }
     .reel-frame .play::before {
-      content: ""; margin-left: 6px;
-      border-style: solid; border-width: 14px 0 14px 24px;
-      border-color: transparent transparent transparent var(--accent);
+      content: ""; margin-left: 5px;
+      border-style: solid; border-width: 12px 0 12px 21px;
+      border-color: transparent transparent transparent #fff;
     }
-    .reel-frame:hover .play {
-      transform: scale(1.1);
-      background: rgba(245,166,35,.15);
-      box-shadow: 0 0 0 12px rgba(245,166,35,.08), 0 0 40px rgba(245,166,35,.35);
-    }
-    .reel-caption {
-      position: absolute; left: 24px; bottom: 20px;
-      color: var(--muted); font-size: .9rem;
-    }
+    .reel-frame:hover .play { transform: scale(1.12); background: rgba(255,255,255,.22); }
+    .reel-caption { position: absolute; left: 24px; bottom: 20px; color: var(--muted); font-size: .9rem; }
 
     /* ===========================================================
-       РАБОТЫ — фильтр по категориям (чистый CSS, без JS)
+       РАБОТЫ — фильтр по категориям (чистый CSS)
        =========================================================== */
-    /* скрытые радио-переключатели управляют видимостью карточек */
     .cat-input { position: absolute; opacity: 0; pointer-events: none; }
-
-    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 48px; }
     .filters label {
-      padding: 8px 22px; border-radius: 999px;
+      padding: 9px 24px; border-radius: 980px;
       border: 1px solid var(--line); color: var(--muted);
-      cursor: pointer; font-size: .9rem; transition: all .25s ease;
+      cursor: pointer; font-size: .92rem; transition: all .3s var(--ease);
     }
-    .filters label:hover { color: var(--text); border-color: var(--accent); }
-
-    /* подсветка активной вкладки */
+    .filters label:hover { color: var(--text); }
     #cat-all:checked    ~ .filters label[for="cat-all"],
     #cat-3d:checked     ~ .filters label[for="cat-3d"],
     #cat-motion:checked ~ .filters label[for="cat-motion"],
     #cat-vfx:checked    ~ .filters label[for="cat-vfx"] {
-      background: var(--accent); color: #0b0b0d; border-color: var(--accent);
+      background: var(--text); color: #000; border-color: var(--text);
     }
-
-    /* скрываем карточки, не входящие в выбранную категорию */
     #cat-3d:checked     ~ .grid .card:not([data-cat="3d"]),
     #cat-motion:checked ~ .grid .card:not([data-cat="motion"]),
-    #cat-vfx:checked    ~ .grid .card:not([data-cat="vfx"]) {
-      display: none;
-    }
+    #cat-vfx:checked    ~ .grid .card:not([data-cat="vfx"]) { display: none; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    /* Карточка работы — интерактивная картинка */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     .card {
       position: relative; overflow: hidden;
-      border-radius: var(--radius);
-      aspect-ratio: 4 / 3;
-      cursor: pointer;
+      border-radius: var(--radius); aspect-ratio: 4 / 3; cursor: pointer;
       border: 1px solid var(--line);
     }
-    .card img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .card img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
     .card:hover img { transform: scale(1.08); }
     .card .overlay {
       position: absolute; inset: 0;
-      display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 20px;
-      background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
-      opacity: 0; transition: opacity .35s ease;
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
+      background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
+      opacity: 0; transition: opacity .4s var(--ease);
     }
     .card:hover .overlay { opacity: 1; }
-    .card .overlay .cat {
-      color: var(--accent); font-size: .72rem; letter-spacing: .18em;
-      text-transform: uppercase; margin-bottom: 6px;
-    }
-    .card .overlay h3 { font-size: 1.15rem; }
+    .card .overlay .cat { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; }
+    .card .overlay h3 { font-size: 1.2rem; font-weight: 600; }
 
     /* ===========================================================
        О СЕБЕ
        =========================================================== */
-    .about-inner { display: grid; grid-template-columns: 320px 1fr; gap: 48px; align-items: center; }
-    .about-photo {
-      border-radius: var(--radius); overflow: hidden;
-      aspect-ratio: 1 / 1; border: 1px solid var(--line);
-    }
+    .about-inner { display: grid; grid-template-columns: 340px 1fr; gap: 56px; align-items: center; }
+    .about-photo { border-radius: var(--radius); overflow: hidden; aspect-ratio: 1/1; border: 1px solid var(--line); }
     .about-photo img { width: 100%; height: 100%; object-fit: cover; }
-    .about-text p { color: var(--muted); margin-bottom: 16px; }
-    .skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-    .skills span {
-      padding: 6px 16px; border-radius: 999px;
-      background: var(--surface); border: 1px solid var(--line);
-      font-size: .85rem; color: var(--text);
-    }
+    .about-text h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -.02em; margin-bottom: 20px; }
+    .about-text p { color: var(--muted); margin-bottom: 16px; font-size: 1.08rem; }
+    .skills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .skills span { padding: 8px 18px; border-radius: 980px; background: var(--surface); font-size: .88rem; }
 
     /* ===========================================================
        КОНТАКТЫ
        =========================================================== */
     .contact { text-align: center; }
-    .contact .mail {
-      display: inline-block; margin: 16px 0 28px;
-      font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700;
-      color: var(--accent); transition: filter .2s;
-    }
-    .contact .mail:hover { filter: brightness(1.15); }
-    .socials { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .socials a {
-      padding: 10px 24px; border-radius: 999px;
-      border: 1px solid var(--line); color: var(--muted);
-      transition: all .25s ease; font-size: .92rem;
-    }
-    .socials a:hover { color: var(--text); border-color: var(--accent); }
+    .contact .mail { display: inline-block; margin: 12px 0 32px; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 700; letter-spacing: -.02em; }
+    .socials { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .socials a { padding: 11px 26px; border-radius: 980px; border: 1px solid var(--line); color: var(--muted); transition: all .3s var(--ease); font-size: .95rem; }
+    .socials a:hover { color: var(--text); border-color: var(--text); }
 
-    /* Подвал */
-    footer { padding: 32px 0; text-align: center; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); }
+    footer { padding: 40px 0; text-align: center; color: var(--muted); font-size: .82rem; border-top: 1px solid var(--line); }
 
     /* ===========================================================
-       АДАПТИВ ПОД ТЕЛЕФОН
+       АДАПТИВ
        =========================================================== */
     @media (max-width: 720px) {
       .nav ul { gap: 16px; }
-      .nav ul a { font-size: .82rem; }
-      .about-inner { grid-template-columns: 1fr; gap: 24px; }
-      .about-photo { max-width: 280px; }
+      .nav ul a { font-size: .78rem; }
+      .about-inner { grid-template-columns: 1fr; gap: 28px; }
+      .about-photo { max-width: 300px; margin: 0 auto; }
+    }
+
+    /* Уважаем системную настройку «меньше движения» */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .blob { animation: none; }
     }
   </style>
 </head>
@@ -263,7 +254,7 @@
 
   <!-- ===================== НАВИГАЦИЯ ===================== -->
   <header class="nav">
-    <div class="logo">ИМЯ<b>.</b></div>
+    <div class="logo">Имя Фамилия</div>
     <nav>
       <ul>
         <li><a href="#reel">Нарезка</a></li>
@@ -276,26 +267,33 @@
 
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="top">
-    <span class="eyebrow">CG-художник · Motion-дизайнер</span>
-    <h1>Имя Фамилия</h1>
-    <p class="sub">Компьютерная графика для кино и моушн-дизайн.<br>Создаю кадры, которых не существует.</p>
-    <div class="cta">
-      <a href="#reel" class="btn btn-primary">▸ Смотреть нарезку</a>
-      <a href="#works" class="btn btn-ghost">Мои работы</a>
+    <div class="aurora">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+    </div>
+    <div class="hero-content reveal">
+      <span class="eyebrow gradient-text">CG для кино · Motion-дизайн</span>
+      <h1>Имя Фамилия</h1>
+      <p class="sub">Создаю кадры, которых не существует.</p>
+      <div class="cta">
+        <a href="#reel" class="btn btn-primary">Смотреть нарезку</a>
+        <a href="#works" class="link-arrow">Мои работы <span class="arr">›</span></a>
+      </div>
     </div>
   </section>
 
   <!-- ===================== ШОУРИЛ ===================== -->
   <section class="block" id="reel">
     <div class="container">
-      <div class="section-head">
-        <span class="eyebrow">Showreel</span>
+      <div class="section-head reveal">
+        <span class="eyebrow gradient-text">Showreel</span>
         <h2>Нарезка работ</h2>
-        <p>Здесь будет ваше шоурил-видео. Пока — заглушка: нажатие можно повесить на YouTube/Vimeo.</p>
+        <p>Здесь будет ваше шоурил-видео. Пока — заглушка: позже привяжем YouTube или Vimeo.</p>
       </div>
-      <div class="reel-frame">
+      <div class="reel-frame reveal">
         <img src="https://picsum.photos/seed/reel-cinema/1280/720" alt="Превью нарезки">
-        <div class="play" aria-label="Воспроизвести"></div>
+        <button class="play" aria-label="Воспроизвести"></button>
         <span class="reel-caption">02:14 · Showreel 2026</span>
       </div>
     </div>
@@ -304,8 +302,8 @@
   <!-- ===================== РАБОТЫ ===================== -->
   <section class="block" id="works">
     <div class="container">
-      <div class="section-head">
-        <span class="eyebrow">Portfolio</span>
+      <div class="section-head reveal">
+        <span class="eyebrow gradient-text">Portfolio</span>
         <h2>Избранные работы</h2>
         <p>Наведите курсор на карточку. Фильтр переключает категории.</p>
       </div>
@@ -316,7 +314,7 @@
       <input type="radio" name="cat" id="cat-motion" class="cat-input">
       <input type="radio" name="cat" id="cat-vfx" class="cat-input">
 
-      <div class="filters">
+      <div class="filters reveal">
         <label for="cat-all">Все</label>
         <label for="cat-3d">3D</label>
         <label for="cat-motion">Motion</label>
@@ -324,29 +322,29 @@
       </div>
 
       <div class="grid">
-        <article class="card" data-cat="3d">
+        <article class="card reveal" data-cat="3d">
           <img src="https://picsum.photos/seed/w1/600/450" alt="">
-          <div class="overlay"><span class="cat">3D</span><h3>Проект «Космодром»</h3></div>
+          <div class="overlay"><span class="cat gradient-text">3D</span><h3>Проект «Космодром»</h3></div>
         </article>
-        <article class="card" data-cat="vfx">
+        <article class="card reveal" data-cat="vfx">
           <img src="https://picsum.photos/seed/w2/600/450" alt="">
-          <div class="overlay"><span class="cat">VFX</span><h3>Сцена погони</h3></div>
+          <div class="overlay"><span class="cat gradient-text">VFX</span><h3>Сцена погони</h3></div>
         </article>
-        <article class="card" data-cat="motion">
+        <article class="card reveal" data-cat="motion">
           <img src="https://picsum.photos/seed/w3/600/450" alt="">
-          <div class="overlay"><span class="cat">Motion</span><h3>Титры сериала</h3></div>
+          <div class="overlay"><span class="cat gradient-text">Motion</span><h3>Титры сериала</h3></div>
         </article>
-        <article class="card" data-cat="vfx">
+        <article class="card reveal" data-cat="vfx">
           <img src="https://picsum.photos/seed/w4/600/450" alt="">
-          <div class="overlay"><span class="cat">VFX</span><h3>Разрушение здания</h3></div>
+          <div class="overlay"><span class="cat gradient-text">VFX</span><h3>Разрушение здания</h3></div>
         </article>
-        <article class="card" data-cat="3d">
+        <article class="card reveal" data-cat="3d">
           <img src="https://picsum.photos/seed/w5/600/450" alt="">
-          <div class="overlay"><span class="cat">3D</span><h3>Персонаж «Голем»</h3></div>
+          <div class="overlay"><span class="cat gradient-text">3D</span><h3>Персонаж «Голем»</h3></div>
         </article>
-        <article class="card" data-cat="motion">
+        <article class="card reveal" data-cat="motion">
           <img src="https://picsum.photos/seed/w6/600/450" alt="">
-          <div class="overlay"><span class="cat">Motion</span><h3>Рекламный ролик</h3></div>
+          <div class="overlay"><span class="cat gradient-text">Motion</span><h3>Рекламный ролик</h3></div>
         </article>
       </div>
     </div>
@@ -355,13 +353,13 @@
   <!-- ===================== О СЕБЕ ===================== -->
   <section class="block" id="about">
     <div class="container">
-      <div class="about-inner">
+      <div class="about-inner reveal">
         <div class="about-photo">
           <img src="https://picsum.photos/seed/portrait/600/600" alt="Портрет">
         </div>
         <div class="about-text">
-          <span class="eyebrow">About</span>
-          <div class="section-head" style="margin:8px 0 16px;"><h2>Несколько слов обо мне</h2></div>
+          <span class="eyebrow gradient-text">About</span>
+          <h2>Несколько слов обо мне</h2>
           <p>Здесь — короткий рассказ о вас: чем занимаетесь, над какими проектами работали, какой у вас подход. Этот текст заполните позже своим.</p>
           <p>Сейчас это заглушка, чтобы вы видели, как блок выглядит и сколько места под него отведено.</p>
           <div class="skills">
@@ -375,10 +373,10 @@
 
   <!-- ===================== КОНТАКТЫ ===================== -->
   <section class="block contact" id="contact">
-    <div class="container">
-      <span class="eyebrow">Contact</span>
-      <div class="section-head" style="margin:8px 0 0;"><h2>Давайте поработаем вместе</h2></div>
-      <a href="mailto:hello@example.com" class="mail">hello@example.com</a>
+    <div class="container reveal">
+      <span class="eyebrow gradient-text">Contact</span>
+      <h2 style="font-size:clamp(2rem,5.5vw,3.4rem);font-weight:700;letter-spacing:-.02em;">Давайте поработаем вместе</h2>
+      <a href="mailto:hello@example.com" class="mail gradient-text">hello@example.com</a>
       <div class="socials">
         <a href="#">Telegram</a>
         <a href="#">Behance</a>
@@ -389,6 +387,20 @@
   </section>
 
   <footer>© 2026 Имя Фамилия · CG для кино · Motion-дизайн</footer>
+
+  <script>
+    // Появление блоков при скролле: добавляем класс .in, когда элемент входит в зону видимости
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);   // анимируем один раз
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  </script>
 
 </body>
 </html>
