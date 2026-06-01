@@ -49,6 +49,17 @@
       color: transparent;
     }
 
+    /* Анимация «переливания»: тянем тот же RGB-градиент туда-обратно */
+    .gradient-anim {
+      background-size: 200% auto;
+      filter: saturate(1.6) brightness(1.2);
+      animation: shimmer 5s var(--ease) infinite alternate;
+    }
+    @keyframes shimmer {
+      from { background-position:   0% center; }
+      to   { background-position: 100% center; }
+    }
+
     /* Маленькая метка над заголовками */
     .eyebrow {
       display: inline-block;
@@ -247,6 +258,7 @@
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
       .blob { animation: none; }
+      .gradient-anim { animation: none; }
     }
   </style>
 </head>
@@ -273,7 +285,7 @@
       <span class="blob b3"></span>
     </div>
     <div class="hero-content reveal">
-      <span class="eyebrow gradient-text">CG для кино · Motion-дизайн</span>
+      <span class="eyebrow gradient-text gradient-anim">CG для кино · Motion-дизайн</span>
       <h1>Alexander Kornilov</h1>
       <p class="sub">Создаю кадры, которых не существует.</p>
       <div class="cta">
